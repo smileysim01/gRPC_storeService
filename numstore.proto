@@ -1,8 +1,21 @@
 syntax = 'proto3';
 
 service NumStore {
-rpc meow(SetNum) returns Fact
-
+rpc SetNum(SetNumReq) returns (SetNumResp);
+rpc Fact(FactReq) returns (FactResp);
 }
-message {
+message SetNumReq{
+        string key=2;
+	int32 value=1;
+}
+message SetNumResp{
+	int32 total=2;
+}
+message FactReq{
+	string key=1;
+}
+message FactResp{
+	int32 value=3;
+	bool hit=5;
+	string error=1;
 }
