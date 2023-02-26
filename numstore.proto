@@ -1,0 +1,8 @@
+syntax = 'proto3';
+
+service NumStore {
+rpc meow(SetNum) returns Fact
+
+}
+message {
+}
