@@ -5,8 +5,8 @@ rpc SetNum(SetNumRequest) returns (SetNumResponse);
 rpc Fact(FactRequest) returns (FactResponse);
 }
 message SetNumRequest{
-    string key=2;
 	int32 value=1;
+    string key=2;
 }
 message SetNumResponse{
 	int32 total=2;
