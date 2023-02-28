@@ -16,13 +16,13 @@ class NumStoreStub(object):
         """
         self.SetNum = channel.unary_unary(
                 '/NumStore/SetNum',
-                request_serializer=numstore__pb2.SetNumRequest.SerializeToString,
-                response_deserializer=numstore__pb2.SetNumResponse.FromString,
+                request_serializer=numstore__pb2.SetNumReq.SerializeToString,
+                response_deserializer=numstore__pb2.SetNumResp.FromString,
                 )
         self.Fact = channel.unary_unary(
                 '/NumStore/Fact',
-                request_serializer=numstore__pb2.FactRequest.SerializeToString,
-                response_deserializer=numstore__pb2.FactResponse.FromString,
+                request_serializer=numstore__pb2.FactReq.SerializeToString,
+                response_deserializer=numstore__pb2.FactResp.FromString,
                 )
 
 
@@ -46,13 +46,13 @@ def add_NumStoreServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SetNum': grpc.unary_unary_rpc_method_handler(
                     servicer.SetNum,
-                    request_deserializer=numstore__pb2.SetNumRequest.FromString,
-                    response_serializer=numstore__pb2.SetNumResponse.SerializeToString,
+                    request_deserializer=numstore__pb2.SetNumReq.FromString,
+                    response_serializer=numstore__pb2.SetNumResp.SerializeToString,
             ),
             'Fact': grpc.unary_unary_rpc_method_handler(
                     servicer.Fact,
-                    request_deserializer=numstore__pb2.FactRequest.FromString,
-                    response_serializer=numstore__pb2.FactResponse.SerializeToString,
+                    request_deserializer=numstore__pb2.FactReq.FromString,
+                    response_serializer=numstore__pb2.FactResp.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -76,8 +76,8 @@ class NumStore(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/NumStore/SetNum',
-            numstore__pb2.SetNumRequest.SerializeToString,
-            numstore__pb2.SetNumResponse.FromString,
+            numstore__pb2.SetNumReq.SerializeToString,
+            numstore__pb2.SetNumResp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -93,7 +93,7 @@ class NumStore(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/NumStore/Fact',
-            numstore__pb2.FactRequest.SerializeToString,
-            numstore__pb2.FactResponse.FromString,
+            numstore__pb2.FactReq.SerializeToString,
+            numstore__pb2.FactResp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
