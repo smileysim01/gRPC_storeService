@@ -10,8 +10,8 @@ Class meow(numstore_pb2_grpc.NumStoreServicer):
        
 
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=4), options=[("grpc.so_reuseport", 0)])
-numstore_pb2_grpc.add_NumStore_to_server(meow(),server())
-print('LISTENING ON PORT : 5444')
-server.add_insecure_port('localhost:5444')
+numstore_pb2_grpc.add_NumStoreServicer_to_server(meow(),server())
+print('LISTENING ON PORT : 5440')
+server.add_insecure_port('localhost:5440')
 server.start()
 server.wait_for_termination()
