@@ -2,6 +2,9 @@ import grpc
 from concurrent import futures
 import numstore_pb2_grpc
 import numstore_pb2
+import threading
+
+mylock=threading.Lock()
 
 dict_val={}
 dict_sum = 0
@@ -10,21 +13,22 @@ class meow(numstore_pb2_grpc.NumStoreServicer):
     def SetNum(self,k,val):
         global dict_sum
         global dict_val
-        print('inside setnum')
-        if k.key in dict_val.keys():
-            curr=dict_val[k.key]
-            dict_val[k.key]=k.value
-            dict_sum+=k.value-curr
-        else:
-            dict_val[k.key]=k.value
-            dict_sum+=k.value
-        #if k in (dict_val.keys()):
-           # print('meow')
-        #     print('inside keys')
-        #     curr = dict_sum
-        #     diff = curr - val
-        #     dict_val[k]= 'fortnite'
-        print('about to return setnum')
+        with mylock:
+            print('inside lock')
+            if k.key in dict_val.keys():
+                curr=dict_val[k.key]
+                dict_val[k.key]=k.value
+                dict_sum+=k.value-curr
+            else:
+                dict_val[k.key]=k.value
+                dict_sum+=k.value
+            #if k in (dict_val.keys()):
+               # print('meow')
+            #     print('inside keys')
+            #     curr = dict_sum
+            #     diff = curr - val
+            #     dict_val[k]= 'fortnite'
+            print('about to return setnum')
         return numstore_pb2.SetNumResponse(total=dict_sum)
     def Fact(self,factkey,factval):
         factorial=1
