@@ -34,17 +34,22 @@ class meow(numstore_pb2_grpc.NumStoreServicer):
             print(factkey.key)
             for i in range(1,dict_val[factkey.key]+1):
                 print('inside loop')
-                factorial*=i     
-        print('hello from fact')
-        return numstore_pb2.FactResponse(value=factorial)
-#def server():
-server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
-numstore_pb2_grpc.add_NumStoreServicer_to_server(meow(),server)
-print('LISTENING ON PORT : 5440')
-server.add_insecure_port('localhost:5440')
-print('added port')
-server.start()
-server.wait_for_termination()
+                factorial*=i
+            return numstore_pb2.FactResponse(value=factorial)
+        else:
+            return numstore_pb2.FactResponse(error='key does not exist')
+        print('exiting from fact')
+    
+def server():  
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    numstore_pb2_grpc.add_NumStoreServicer_to_server(meow(),server)
+    print('LISTENING ON PORT : 5440')
+    server.add_insecure_port('localhost:5440')
+    print('added port')
+    server.start()
+    server.wait_for_termination()
+    
+server()
 
        
 
