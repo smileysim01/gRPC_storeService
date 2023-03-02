@@ -4,12 +4,14 @@ from concurrent import futures
 import numstore_pb2_grpc
 import numstore_pb2
 import threading
+import collections
 mylock=threading.Lock()
 
-my_cache=[]
+my_cache=collections.OrderedDict()# implementing LRU, a google search for whether python dicts are ordered, gave me this idea, article link is https://medium.com/junior-dev/python-dictionaries-are-ordered-now-but-how-and-why-5d5a40ee327f
 cache_size=10
 dict_val={} # dictionary of values
 dict_sum = 0 # sum of values in the dictionary
+
 class meow(numstore_pb2_grpc.NumStoreServicer):
     print('meow')
     def SetNum(self,k,val):
@@ -27,18 +29,33 @@ class meow(numstore_pb2_grpc.NumStoreServicer):
             print('about to return setnum')
         return numstore_pb2.SetNumResponse(total=dict_sum)
     def Fact(self,factkey,factval):
+        global my_cache
+        global cache_size
         factorial=1
-        #print('inside fact')
-        if factkey.key in dict_val.keys():
-            #print('inside if')
-            #print(factkey.key)
-            for i in range(1,dict_val[factkey.key]+1):
-                factorial*=i
-            return numstore_pb2.FactResponse(value=factorial)
+        if factkey.key in dict_val:
+            mylock.acquire()
+            if factkey.key in my_cache.keys():
+                factorial=my_cache[factkey.key] ## return already computed value
+                my_cache.move_to_end(factkey.key) # move the current key to end as its recently used
+                mylock.release()
+                return numstore_pb2.FactResponse(value=factorial,hit=True)
+            elif factkey.key not in my_cache.keys() and len(my_cache)<=cache_size:  
+                # if factkey is not in cache and cache has space, calculate factorial and add it to cache
+                mylock.release()
+                for i in range(1,dict_val[factkey.key]+1):
+                    factorial*=i
+                my_cache[factkey.key]=factorial
+                return numstore_pb2.FactResponse(value=factorial,hit=False)
+            elif factkey.key not in my_cache.keys() and len(my_cache)>cache_size:
+                mylock.release()
+                my_cache.popitem(last = False) # remove first item i.e oldest value used
+                for i in range(1,dict_val[factkey.key]+1):
+                    factorial*=i # calculate factorial for this new value and store it
+                my_cache[factkey.key]=factorial
+                return numstore_pb2.FactResponse(value=factorial,hit=False)
         else:
-            return numstore_pb2.FactResponse(error='key does not exist')
+            return numstore_pb2.FactResponse(error='key does not exist,please add it using setnum')
         print('exiting from fact')
-    
 def server():  
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     numstore_pb2_grpc.add_NumStoreServicer_to_server(meow(),server)
