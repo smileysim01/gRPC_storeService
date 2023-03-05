@@ -35,27 +35,35 @@ class meow(numstore_pb2_grpc.NumStoreServicer):
         if factkey.key in dict_val:
             mylock.acquire()
             if factkey.key in my_cache.keys():
+                print('current',my_cache)
                 factorial=my_cache[factkey.key] ## return already computed value
                 my_cache.move_to_end(factkey.key) # move the current key to end as its recently used
+                print('updated',my_cache)
                 mylock.release()
                 return numstore_pb2.FactResponse(value=factorial,hit=True)
-            elif factkey.key not in my_cache.keys() and len(my_cache)<=cache_size:  
+            elif factkey.key not in my_cache.keys() and len(my_cache)<cache_size:  
                 # if factkey is not in cache and cache has space, calculate factorial and add it to cache
-                mylock.release()
+                print(my_cache)
+                mylock.release() # releasing lock when computing factorial
                 for i in range(1,dict_val[factkey.key]+1):
                     factorial*=i
                 my_cache[factkey.key]=factorial
+                print('updated',my_cache)
                 return numstore_pb2.FactResponse(value=factorial,hit=False)
-            elif factkey.key not in my_cache.keys() and len(my_cache)>cache_size:
-                mylock.release()
+            elif factkey.key not in my_cache.keys() and len(my_cache)==cache_size:
+                print('CACHE FULL, POPPING OLDEST VALUE')
+                print(my_cache)
+                ## cache is full, should pop the oldest value i.e the first value in the dict
                 my_cache.popitem(last = False) # remove first item i.e oldest value used
+                mylock.release()
                 for i in range(1,dict_val[factkey.key]+1):
                     factorial*=i # calculate factorial for this new value and store it
                 my_cache[factkey.key]=factorial
+                my_cache.move_to_end(factkey.key) # move the current key to end as its recently used
+                print('updated',my_cache)
                 return numstore_pb2.FactResponse(value=factorial,hit=False)
         else:
             return numstore_pb2.FactResponse(error='key does not exist,please add it using setnum')
-        print('exiting from fact')
 def server():  
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     numstore_pb2_grpc.add_NumStoreServicer_to_server(meow(),server)
