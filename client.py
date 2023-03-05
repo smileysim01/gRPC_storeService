@@ -19,8 +19,6 @@ my_threads=[]
 my_threads_times=[]
 hit_counter=0
 port=sys.argv[1] # get port submitted when running this client
-channel = grpc.insecure_channel("localhost:"+str(port))
-stub = numstore_pb2_grpc.NumStoreStub(channel)
 
 class my_client(threading.Thread):
     def __init__(self,port):
@@ -56,7 +54,6 @@ class my_client(threading.Thread):
                     total_reqs-=1 # subtract a request since its not valid, we are not using cache or even calculating the factorial,The rate only counts for calculating Fact, whether it is been calculated or derived from cache from piazza  
                 total_reqs+=1
                     
-        
 for t in range(thread_count):
     t=my_client(port)
     my_threads.append(t)
@@ -65,5 +62,5 @@ for t in range(thread_count):
             
 
 print('The cache hit rate is : ',hit_counter/total_reqs)
-print("p50  Time:", np.percentile(my_threads_times, 50)) 
-print("p99  Time:", np.percentile(my_threads_times, 99))
+print("p50  Time is:", np.percentile(my_threads_times, 50)) 
+print("p99  Time is :", np.percentile(my_threads_times, 99))

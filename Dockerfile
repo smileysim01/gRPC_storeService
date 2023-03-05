@@ -8,4 +8,4 @@ RUN pip3 install jupyterlab==3.4.5 MarkupSafe==2.0.1 grpcio grpcio-tools
 
 COPY . .
 
-CMD ["python3", "server.py", "jupyterlab", "--no-browser", "--ip=0.0.0.0", "--port=5440", "--allow-root", "--NotebookApp.token=''"]
+CMD ["python3", "server.py"]
