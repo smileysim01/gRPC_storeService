@@ -68,7 +68,7 @@ def server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     numstore_pb2_grpc.add_NumStoreServicer_to_server(meow(),server)
     print('LISTENING ON PORT : 5440')
-    server.add_insecure_port('localhost:5440')
+    server.add_insecure_port('[::]:5440')
     print('added port')
     server.start()
     server.wait_for_termination()

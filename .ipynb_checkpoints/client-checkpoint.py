@@ -23,9 +23,12 @@ channel = grpc.insecure_channel("localhost:"+str(port))
 stub = numstore_pb2_grpc.NumStoreStub(channel)
 
 class my_client(threading.Thread):
-    def __init__(self, thread_name):
+    def __init__(self,port):
         threading.Thread.__init__(self)
-        self.thread_name = thread_name        
+        #self.thread_name = thread_name     
+        self.port=port
+        self.channel= grpc.insecure_channel("localhost:"+str(port))
+        self.stub= numstore_pb2_grpc.NumStoreStub(self.channel)
     def run(self):
         global hit_counter,my_threads_times,total_reqs
         #print('Thread '+str(self.thread_name));
@@ -37,13 +40,13 @@ class my_client(threading.Thread):
                 num = random.randint(1,15)
                 #print(num)
                 t1=time.time()
-                setnumresp = stub.SetNum(numstore_pb2.SetNumRequest(key=str(k),value=num))
+                setnumresp = self.stub.SetNum(numstore_pb2.SetNumRequest(key=str(k),value=num))
                 t2=time.time()
                 my_threads_times.append(t2-t1)
             else:
                 #print(k)
                 t1=time.time()
-                resp=stub.Fact(numstore_pb2.FactRequest(key=str(k)))
+                resp=self.stub.Fact(numstore_pb2.FactRequest(key=str(k)))
                 t2=time.time()
                 my_threads_times.append(t2-t1)
                 if resp.hit == True:
@@ -55,7 +58,7 @@ class my_client(threading.Thread):
                     
         
 for t in range(8):
-    t=my_client(t)
+    t=my_client(port)
     my_threads.append(t)
     t.start()
     t.join()
